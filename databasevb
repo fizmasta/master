@@ -1,0 +1,93 @@
+Public Class Form1
+    Inherits System.Windows.Forms.Form
+    Public DATABASE As New ADODB.Connection()
+    Public TableAUTHOR As New ADODB.Recordset()
+    Public DataSetDiagnoses As New ADODB.Recordset()
+    Public DataSetPositions As New ADODB.Recordset()
+    Public DataSetSpecialization As New ADODB.Recordset()
+    Public DataSetStaff As New ADODB.Recordset()
+    Public DataSetPatients As New ADODB.Recordset()
+    Public DataSetSurveys As New ADODB.Recordset()
+    Dim sLogin, sPassword As String
+    Public connect As Boolean
+    Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        Try
+            DATABASE.Open("Provider=Microsoft.jet.oledb.4.0; Data source=Registry.mdb")
+
+            TableAUTHOR.Open("AUTHOR", DATABASE, ADODB.CursorTypeEnum.adOpenDynamic, ADODB.LockTypeEnum.adLockOptimistic)
+            DataSetDiagnoses.Open("Diagnoses", DATABASE, ADODB.CursorTypeEnum.adOpenDynamic, ADODB.LockTypeEnum.adLockOptimistic)
+            DataSetPositions.Open("Positions", DATABASE, ADODB.CursorTypeEnum.adOpenDynamic, ADODB.LockTypeEnum.adLockOptimistic)
+            DataSetSpecialization.Open("Specialization", DATABASE, ADODB.CursorTypeEnum.adOpenDynamic, ADODB.LockTypeEnum.adLockOptimistic)
+            DataSetStaff.Open("Staff", DATABASE, ADODB.CursorTypeEnum.adOpenDynamic, ADODB.LockTypeEnum.adLockOptimistic)
+            DataSetPatients.Open("Patients", DATABASE, ADODB.CursorTypeEnum.adOpenDynamic, ADODB.LockTypeEnum.adLockOptimistic)
+            DataSetSurveys.Open("Surveys", DATABASE, ADODB.CursorTypeEnum.adOpenDynamic, ADODB.LockTypeEnum.adLockOptimistic)
+
+        Catch ex As Exception
+            MessageBox.Show("Connection not successful!!!" + vbCrLf + _
+                   "Failed to connect to database", "Error", _
+                   MessageBoxButtons.OK, MessageBoxIcon.Error)
+            connect = False
+            Me.Close()
+        End Try
+
+        Label1.Visible = True
+        Label2.Visible = True
+        TextBox1.Visible = True
+        TextBox2.Visible = True
+        Button1.Visible = True
+        TextBox1.Text = Nothing
+        TextBox2.Text = Nothing
+        TextBox2.PasswordChar = "•"
+
+    End Sub
+
+    Private Sub Form1_FormClosing(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
+        'Breaking the connection
+        If connect Then DATABASE.Close()
+    End Sub
+
+    Private Sub Button1_Click_1(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+        Dim flag As Boolean
+        Dim combo1 As Integer
+        Dim p As String
+
+        sLogin = Trim(TextBox1.Text)
+        sPassword = Trim(TextBox2.Text)
+        Select Case combo1
+
+            Case 0
+                ''Coder()
+                TableAUTHOR.MoveFirst()
+                flag = False
+                Do While Not TableAUTHOR.EOF()
+                    
+                    If TableAUTHOR.Fields("Username").Value = sLogin Then
+
+                        If IsDBNull(TableAUTHOR.Fields("Password").Value) Then
+                            p = ""
+                        Else
+                            p = TableAUTHOR.Fields("Password").Value
+                        End If
+                        If p = sPassword Then
+                            flag = True
+                            Exit Do
+                        End If
+                    End If
+                    TableAUTHOR.MoveNext()
+                Loop
+                If flag Then
+                    Me.Hide()
+                    Form2.Show()
+                Else
+                    MessageBox.Show(" Invalid username and/or password ", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                End If
+
+        End Select
+mEnd:
+    End Sub
+
+    
+    Private Sub CheckBox1_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBox1.CheckedChanged
+        If CheckBox1.Checked = False Then TextBox2.PasswordChar = "•" Else TextBox2.PasswordChar = ""
+    End Sub
+End Class
